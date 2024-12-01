@@ -29,6 +29,11 @@ public class TrackerController {
         return trackerFacade.saveLocations(Mono.just(trackerRequestDto));
     }
 
+    @GetMapping("/resilience")
+    public Mono<String> resilience() {
+        return trackerFacade.resilience();
+    }
+
     @GetMapping("/error")
     public Mono<Void> throwException() {
         throw new RuntimeException("Forced error for testing");

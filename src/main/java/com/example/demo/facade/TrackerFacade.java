@@ -27,4 +27,8 @@ public class TrackerFacade {
     public Mono<Void> saveLocations(Mono<TrackerRequestDto> trackerRequestDto) {
         return trackerService.saveLocations(trackerRequestDto).log();
     }
+
+    public Mono<String> resilience() {
+        return trackerService.callExternalService();
+    }
 }

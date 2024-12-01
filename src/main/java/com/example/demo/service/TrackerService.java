@@ -9,4 +9,5 @@ public interface TrackerService {
 
     Flux<TrackerDto> getCurrentLocation(float latitude, float longitude);
     Mono<Void> saveLocations(Mono<TrackerRequestDto> trackerRequestDto);
+    Mono<String> callExternalService();
 }

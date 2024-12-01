@@ -7,6 +7,8 @@ import com.example.demo.model.entity.TrackerEntity;
 import com.example.demo.model.mapper.TrackerMapper;
 import com.example.demo.repository.TrackerCache;
 import com.example.demo.repository.TrackerRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -20,14 +22,16 @@ public class TrackerServiceImpl implements TrackerService {
     private final TrackerRepository trackerRepository;
     private final TrackerCache trackerCache;
     private final AuditService auditService;
+    private final ExternalService externalService;
 
     @Value("${demo.has-cache:false}")
     private boolean hasCache;
 
-    public TrackerServiceImpl(TrackerRepository trackerRepository, TrackerCache trackerCache, AuditService auditService) {
+    public TrackerServiceImpl(TrackerRepository trackerRepository, TrackerCache trackerCache, AuditService auditService, ExternalService externalService) {
         this.trackerRepository = trackerRepository;
         this.trackerCache = trackerCache;
         this.auditService = auditService;
+        this.externalService = externalService;
     }
 
     @Override
@@ -66,5 +70,15 @@ public class TrackerServiceImpl implements TrackerService {
                 })
                 .doOnNext(x -> auditService.save(Mono.just(AuditDto.builder().build())))
                 .then();
+    }
+
+    @CircuitBreaker(name = "trackerService", fallbackMethod = "fallback")
+    @Retry(name = "trackerService")
+    public Mono<String> callExternalService() {
+        return externalService.unstableCall();
+    }
+
+    public Mono<String> fallback(Throwable throwable) {
+        return Mono.just("Fallback response: " + throwable.getMessage());
     }
 }
