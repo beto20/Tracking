@@ -1,5 +1,8 @@
 package com.example.demo.model.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotEmpty;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -8,10 +11,15 @@ public class TrackerRequestDto implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @NotEmpty
     private String country;
+    @NotEmpty
     private String city;
+    @NotEmpty
     private String address;
+    @Max(value = 0)
     private float latitude;
+    @Max(value = 0)
     private float longitude;
 
     public String getCountry() {

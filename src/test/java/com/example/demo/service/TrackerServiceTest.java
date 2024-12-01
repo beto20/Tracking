@@ -2,14 +2,12 @@ package com.example.demo.service;
 
 import com.example.demo.model.dto.TrackerDto;
 import com.example.demo.model.dto.TrackerRequestDto;
-import com.example.demo.model.entity.TrackerEntity;
 import com.example.demo.repository.TrackerCache;
 import com.example.demo.repository.TrackerRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -17,13 +15,15 @@ class TrackerServiceTest {
 
     private static TrackerRepository trackerRepository;
     private static TrackerCache trackerCache;
+    private static AuditService auditService;
     private static TrackerService trackerService;
 
     @BeforeAll
     public static void setup() {
         trackerRepository = Mockito.mock(TrackerRepository.class);
         trackerCache = Mockito.mock(TrackerCache.class);
-        trackerService = new TrackerServiceImpl(trackerRepository, trackerCache);
+        auditService = Mockito.mock(AuditService.class);
+        trackerService = new TrackerServiceImpl(trackerRepository, trackerCache, auditService);
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.model.dto.AuditDto;
 import com.example.demo.model.dto.TrackerDto;
 import com.example.demo.model.dto.TrackerRequestDto;
 import com.example.demo.model.entity.TrackerEntity;
@@ -18,13 +19,15 @@ import java.sql.SQLException;
 public class TrackerServiceImpl implements TrackerService {
     private final TrackerRepository trackerRepository;
     private final TrackerCache trackerCache;
+    private final AuditService auditService;
 
     @Value("${demo.has-cache:false}")
     private boolean hasCache;
 
-    public TrackerServiceImpl(TrackerRepository trackerRepository, TrackerCache trackerCache) {
+    public TrackerServiceImpl(TrackerRepository trackerRepository, TrackerCache trackerCache, AuditService auditService) {
         this.trackerRepository = trackerRepository;
         this.trackerCache = trackerCache;
+        this.auditService = auditService;
     }
 
     @Override
@@ -36,7 +39,8 @@ public class TrackerServiceImpl implements TrackerService {
                             .setAddress(te.getAddress())
                             .setCity(te.getCity())
                             .setCountry(te.getCountry())
-                            .build());
+                            .build())
+                .doOnNext(x -> auditService.save(Mono.just(AuditDto.builder().build())));
     }
 
     public Flux<TrackerDto> get(float latitude, float longitude) {
@@ -60,6 +64,7 @@ public class TrackerServiceImpl implements TrackerService {
 
                     return trackerRepository.save(entity).then();
                 })
+                .doOnNext(x -> auditService.save(Mono.just(AuditDto.builder().build())))
                 .then();
     }
 }
